@@ -24,4 +24,8 @@ class KeyphraseExtractionPipeline(TokenClassificationPipeline):
         return np.unique([result.get("word").strip() for result in results])
 
 
+# TODO: Prajwal add Statistical Extracor
+class StatisticalExtractor:
 
+    def __call__(self, text) -> np.Any:
+        return []

@@ -3,7 +3,7 @@ from src.mmr import mmr
 from src.embedder import Embedder
 from src.text_cleaner import TextCleaner
 from src.resume_reader import MyPDFReader
-from src.extractor import KeyphraseExtractionPipeline
+from src.extractor import KeyphraseExtractionPipeline, StatisticalExtractor
 
 class KeyWordDiversifyer:
     def __init__(self, pdf_path : str, top_n: float = 0.0 ) -> None:
@@ -18,19 +18,17 @@ class KeyWordDiversifyer:
         
         
         self.extractor = KeyphraseExtractionPipeline(model="ml6team/keyphrase-extraction-distilbert-inspec")
+        self.statisitcal_extractor = StatisticalExtractor()
         
         self.cleaner = TextCleaner()
-        
+
         self.top_n = top_n
 
     def __call__(self, diversity) -> Any:
 
         # try:
         self.text = self.cleaner(self.text)
-        keywords = list(self.extractor(self.text))
-        print(keywords)
-        print(type(keywords))
-
+        keywords = list(self.extractor(self.text)) + list(self.statisitcal_extractor(text=self.text))
 
         if diversity >= 0.1:
             # generate keywords and words embedding
