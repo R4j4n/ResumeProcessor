@@ -10,19 +10,25 @@ from rake_nltk import Rake
 
 from transformers.pipelines import AggregationStrategy
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.metrics.pairwise import cosine_similarity
 
 
-import ssl
-try:
-    _create_unverified_https_context = ssl._create_unverified_context
-except AttributeError:
-    pass
-else:
-    ssl._create_default_https_context = _create_unverified_https_context
+# import ssl
+# try:
+#     _create_unverified_https_context = ssl._create_unverified_context
+# except AttributeError:
+#     pass
+# else:
+#     ssl._create_default_https_context = _create_unverified_https_context
 
-nltk.download('stopwords')
-nltk.download('punkt')
+# nltk.download('stopwords')
+# nltk.download('punkt')
 
+
+# Local import
+from embedder import Embedder
 
 
 # Define keyphrase extraction pipeline
@@ -42,22 +48,7 @@ class KeyphraseExtractionPipeline(TokenClassificationPipeline):
         )
         return np.unique([result.get("word").strip() for result in results])
 
-
-
-class StatisticalSelector:
-    def __call__(self, keywords1, keywords2) -> list[str]:
-        final_keywords = keywords2
-        for word1 in keywords1:
-            found = False
-            for phrase in final_keywords:
-                if word1 in phrase:
-                    found = True
-            if found == False:
-                final_keywords.append(word1)
-
-        return final_keywords
-
-
+        
 class StatisticalExtractor:
 
     def __call__(self, text) -> list[str]:
@@ -70,8 +61,8 @@ class StatisticalExtractor:
         
         sorted_words = sorted(freq_dist.items(), key=lambda x: x[1], reverse=True)
 
-        # usually, 1-5% of the words in a text can be considered as keywords. Therefore, We'll consider 4% of the total word count
-        N = int(round(0.04*len(words)))+1
+        # usually, 1-5% of the words in a text can be considered as keywords. Therefore, We'll consider 5% of the total word count
+        N = int(round(0.05*len(words)))+1
 
         words_with_frequency = sorted_words[:N] #list[tuple[Any, int]]
         frequent_words = [el[0] for el in words_with_frequency]
@@ -87,4 +78,48 @@ class StatisticalExtractor:
         rake_keywords_with_scores = rake_keywords[:N] #List[Tuple[float, Sentence]]
         rake_keywords = [el[-1] for el in rake_keywords_with_scores]
 
-        return StatisticalSelector()(frequent_words, rake_keywords)
+        return self.statistical_selector(frequent_words, rake_keywords)
+    
+    def statistical_selector(self, keywords1, keywords2) -> list[str]:
+        final_keywords = keywords2
+        for word1 in keywords1:
+            found = False
+            for phrase in final_keywords:
+                if word1 in phrase:
+                    found = True
+            if found == False:
+                final_keywords.append(word1)
+
+        return final_keywords
+    
+
+class KeywordsAggregator:
+    def __call__(self, *lists):
+        # Combine all the lists into one
+        phrases = [phrase for lst in lists for phrase in lst]
+
+        # # Vectorize the phrases
+        # vectorizer = TfidfVectorizer()
+        # X = vectorizer.fit_transform(phrases)
+        vectorizer = Embedder()
+        vectors = vectorizer(phrases)
+
+        # Calculate the similarity matrix
+        similarity_matrix = cosine_similarity(vectors)
+
+        # Cluster the phrases
+        clustering_model = AgglomerativeClustering(n_clusters=None, distance_threshold=0.7)
+        clustering_model.fit(similarity_matrix)
+
+        # Get the cluster labels for each phrase
+        labels = clustering_model.labels_
+
+        # Create a dictionary where the keys are the cluster labels and the values are lists of phrases in that cluster
+        clusters = {i: [] for i in range(clustering_model.n_clusters_)}
+        for label, phrase in zip(labels, phrases):
+            clusters[label].append(phrase)
+
+        # Choose a representative for each cluster
+        representatives = [min(cluster, key=len) for cluster in clusters.values()]
+
+        return representatives
