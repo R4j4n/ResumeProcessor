@@ -4,22 +4,25 @@ from src.embedder import Embedder
 from src.text_cleaner import TextCleaner
 from src.resume_reader import MyPDFReader
 from src.extractor import KeyphraseExtractionPipeline, StatisticalExtractor
+from src.extractor import KeywordsAggregator
+
 
 class KeyWordDiversifyer:
-    def __init__(self, pdf_path : str, top_n: float = 0.0 ) -> None:
+    def __init__(self, pdf_path: str, top_n: float = 0.0) -> None:
         self.pdf_path = pdf_path
-        try: 
+        try:
             temp = MyPDFReader()(self.pdf_path)
             self.text = temp["text"]
             self.page_number = temp["page_number"]
 
         except Exception as e:
             raise Exception(f"Cannot Read the PDF, something happened : {e}")
-        
-        
-        self.extractor = KeyphraseExtractionPipeline(model="ml6team/keyphrase-extraction-distilbert-inspec")
+
+        self.extractor = KeyphraseExtractionPipeline(
+            model="ml6team/keyphrase-extraction-distilbert-inspec"
+        )
         self.statisitcal_extractor = StatisticalExtractor()
-        
+
         self.cleaner = TextCleaner()
 
         self.top_n = top_n
@@ -27,8 +30,9 @@ class KeyWordDiversifyer:
     def __call__(self, diversity) -> Any:
 
         # try:
-        self.text = self.cleaner(self.text)
-        keywords = list(self.extractor(self.text)) + list(self.statisitcal_extractor(text=self.text))
+        # self.text = self.cleaner(self.text)
+
+        keywords = KeywordsAggregator()(list(self.extractor(self.text)) , list(self.statisitcal_extractor(text=self.text)))    
 
         if diversity >= 0.1:
             # generate keywords and words embedding
@@ -48,17 +52,14 @@ class KeyWordDiversifyer:
             )
 
             return keywords_mmr
-        
 
         else:
-            return [(x, 0.0) for x in keywords[0:self.top_n]]
+            return [(x, 0.0) for x in keywords[0 : self.top_n]]
         # except:
         #     raise Exception("Cannot Extract Keyphrases")
-        
-    
+
 
 if __name__ == "__main__":
-    kd = KeyWordDiversifyer("/home/rjn/Documents/GitHub/ResumeProcessor/samples/V4_Rajan_T.pdf",
-                            top_n=10)
+    kd = KeyWordDiversifyer("samples/V4_Rajan_T.pdf", top_n=10)
     kwds = kd(diversity=0.6)
     print(kwds)
