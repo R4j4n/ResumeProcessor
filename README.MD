@@ -1,4 +1,4 @@
-**Project Title**: Resume Keyword Diversity System
+## Resume Keyword Diversity System
 
 ![](static/2024-04-17_17-36.png)
 
