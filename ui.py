@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+import pandas as pd 
 from src.viz import create_star_graph
 
 if 'save_pth' not in st.session_state:
@@ -11,7 +12,7 @@ if 'key_words' not in st.session_state:
 if 'process' not in st.session_state:
     st.session_state.process = False
 
-
+import plotly.express as px 
 
 # Set page configuration
 st.set_page_config(layout="wide")
@@ -36,6 +37,8 @@ os.makedirs(uploads_dir, exist_ok=True)
 
 with container_pdf:
 
+    diversity = st.slider(label="Select how much diversity you want in keywords: ",min_value=0.0,max_value=1.0, step=0.1)
+
     pdf_file = st.file_uploader("Upload PDF file", type='pdf')
 
     if pdf_file:
@@ -51,8 +54,6 @@ with container_pdf:
         st.session_state.save_pth = file_path
 
         if st.session_state.save_pth:
-            diversity = st.slider(label="Select how much diversity you want in keywords: ",min_value=0.0,max_value=1.0, step=0.1)
-
             if st.button("Process"):
                 st.session_state.process = True
 
@@ -63,4 +64,28 @@ with container_chat:
             k_words = KeyWordDiversifyer(pdf_path=st.session_state.save_pth, top_n=10)
             st.session_state.key_words = k_words(diversity=diversity)
 
-        st.pyplot(fig=(create_star_graph(keyword_similarity_data=st.session_state.key_words)))
+        with st.expander("Keywords Similarity"):
+            mapp = {"keywords": [x[0] for x in st.session_state.key_words], "Similarity": [x[1] for x in st.session_state.key_words]}
+            df = pd.DataFrame(mapp)
+
+
+
+            st.dataframe(df, use_container_width=True)
+        with st.expander("Graphically"):
+            # Create a bar plot
+            fig = px.bar(df, x='keywords', y='Similarity',
+                        title='Similarity of Keywords in Resume',
+                        labels={'keywords': 'Keywords', 'Similarity': 'Similarity Score'},
+                        color='Similarity',  # Color the bars by their similarity score
+                        color_continuous_scale='Viridis')  # Color scale
+
+            # Improve the layout
+            fig.update_layout(xaxis_title='Keywords',
+                            yaxis_title='Similarity Score',
+                            xaxis_tickangle=-45,  # Rotate labels for better visibility
+                            coloraxis_colorbar=dict(title='Similarity Score'),
+                            height = 700,
+                            width = 1000)
+
+            st.plotly_chart(figure_or_data=fig)
+            st.pyplot(fig=(create_star_graph(keyword_similarity_data=st.session_state.key_words)))
