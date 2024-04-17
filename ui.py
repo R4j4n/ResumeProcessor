@@ -36,6 +36,9 @@ uploads_dir = "uploads"
 os.makedirs(uploads_dir, exist_ok=True)
 
 with container_pdf:
+    with st.sidebar:
+        st.header("Project Members")
+        st.text("Rajan Ghimire C0924991")
 
     diversity = st.slider(label="Select how much diversity you want in keywords: ",min_value=0.0,max_value=1.0, step=0.1)
 
