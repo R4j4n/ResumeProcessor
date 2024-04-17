@@ -7,6 +7,8 @@ from src.extractor import KeyphraseExtractionPipeline, StatisticalExtractor
 from src.extractor import KeywordsAggregator
 
 
+
+
 class KeyWordDiversifyer:
     def __init__(self, pdf_path: str, top_n: float = 0.0) -> None:
         self.pdf_path = pdf_path
@@ -32,8 +34,8 @@ class KeyWordDiversifyer:
         # try:
         # self.text = self.cleaner(self.text)
 
-        keywords = KeywordsAggregator()(list(self.extractor(self.text)) , list(self.statisitcal_extractor(text=self.text)))    
-
+        # keywords = KeywordsAggregator()(list(self.extractor(self.text)) , list(self.statisitcal_extractor(text=self.text)))    
+        keywords = list(self.extractor(self.text))
         if diversity >= 0.1:
             # generate keywords and words embedding
             embedder = Embedder()
