@@ -40,7 +40,7 @@ with container_pdf:
         st.header("Project Members")
         st.text("Rajan Ghimire C0924991")
 
-    diversity = st.slider(label="Select how much diversity you want in keywords: ",min_value=0.0,max_value=1.0, step=0.1)
+    diversity = st.slider(label="Select how much diversity you want in keywords: ",min_value=0.0,max_value=1.0, step=0.1, value=0.1)
 
     pdf_file = st.file_uploader("Upload PDF file", type='pdf')
 
