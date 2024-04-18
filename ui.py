@@ -40,7 +40,10 @@ with container_pdf:
         st.header("Project Members")
         st.text("Rajan Ghimire C0924991")
 
+    
+    n_keywords = st.slider(label="Select N keywords that you want.",min_value=10 ,max_value=20, step=2, value=10)
     diversity = st.slider(label="Select how much diversity you want in keywords: ",min_value=0.0,max_value=1.0, step=0.1, value=0.1)
+
 
     pdf_file = st.file_uploader("Upload PDF file", type='pdf')
 
@@ -64,7 +67,7 @@ with container_pdf:
 with container_chat:
     if st.session_state.process:
         with st.spinner("Generating ........."):
-            k_words = KeyWordDiversifyer(pdf_path=st.session_state.save_pth, top_n=10)
+            k_words = KeyWordDiversifyer(pdf_path=st.session_state.save_pth, top_n=n_keywords)
             st.session_state.key_words = k_words(diversity=diversity)
 
         with st.expander("Keywords Similarity"):
