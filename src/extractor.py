@@ -12,7 +12,6 @@ from rake_nltk import Rake
 
 from transformers.pipelines import AggregationStrategy
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -77,7 +76,7 @@ class StatisticalExtractor:
         rake_keywords = rake_object.get_ranked_phrases_with_scores()
 
         rake_keywords_with_scores = rake_keywords[:N]  # List[Tuple[float, Sentence]]
-        rake_keywords = [el[-1] for el in rake_keywords_with_scores]
+        rake_keywords = [el[-1] for el in rake_keywords_with_scores if len(rake_keywords_with_scores[-1]) <=3]
 
         return self.statistical_selector(frequent_words, rake_keywords)
 

@@ -32,9 +32,9 @@ class KeyWordDiversifyer:
     def __call__(self, diversity) -> Any:
 
         # try:
-        # self.text = self.cleaner(self.text)
+        self.text = self.cleaner(self.text)
 
-        # keywords = KeywordsAggregator()(list(self.extractor(self.text)) , list(self.statisitcal_extractor(text=self.text)))    
+        keywords = KeywordsAggregator()(list(self.extractor(self.text)) , list(self.statisitcal_extractor(text=self.text)))    
         keywords = list(self.extractor(self.text))
         if diversity >= 0.1:
             # generate keywords and words embedding
