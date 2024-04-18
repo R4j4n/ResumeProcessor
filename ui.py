@@ -23,8 +23,6 @@ st.title("Resume Keywords Analyzer.")
 # Import the PDF viewer from the library
 from streamlit_pdf_viewer import pdf_viewer
 
-
-
 # Assuming the main.py has necessary class definitions
 from main import KeyWordDiversifyer
 
@@ -35,10 +33,19 @@ container_pdf, container_chat = st.columns([40, 60])
 uploads_dir = "uploads"
 os.makedirs(uploads_dir, exist_ok=True)
 
+team_members = """
+- Rajan Ghimire (c0924991)
+- Prajwal Luitel (C0927658)
+- Shishir Mishra (C0927250)
+- Aarjeyan Shrestha (C0927422)
+- Sudip Chaudhary (C0922310)
+
+"""
+
 with container_pdf:
     with st.sidebar:
         st.header("Project Members")
-        st.text("Rajan Ghimire C0924991")
+        st.text(team_members)
 
     
     n_keywords = st.slider(label="Select N keywords that you want.",min_value=10 ,max_value=20, step=2, value=10)
@@ -78,17 +85,17 @@ with container_chat:
 
             st.dataframe(df, use_container_width=True)
         with st.expander("Graphically"):
-            # Create a bar plot
+  
             fig = px.bar(df, x='keywords', y='Similarity',
                         title='Similarity of Keywords in Resume',
                         labels={'keywords': 'Keywords', 'Similarity': 'Similarity Score'},
-                        color='Similarity',  # Color the bars by their similarity score
-                        color_continuous_scale='Viridis')  # Color scale
+                        color='Similarity', 
+                        color_continuous_scale='Viridis') 
 
             # Improve the layout
             fig.update_layout(xaxis_title='Keywords',
                             yaxis_title='Similarity Score',
-                            xaxis_tickangle=-45,  # Rotate labels for better visibility
+                            xaxis_tickangle=-45, 
                             coloraxis_colorbar=dict(title='Similarity Score'),
                             height = 700,
                             width = 1000)

@@ -19,13 +19,30 @@ class TextCleaner:
         return text
 
     def remove_emojis_and_unrecognizable_characters(self, text: str) -> str:
+
+        date_pattern = r'\b(?:\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|\d{1,2}/\d{4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})\b'
+        email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        phone_pattern = r'\+?\d{1,3}\s?(\(\d{1,3}\)\s?|\d{1,3}[-.\s]?)\d{1,3}[-.\s]?\d{1,4}([-.\s]?\d{1,4})?'
+
+        # Remove every date 
+        text = re.sub(date_pattern,'',text)
+
+        # Remove email patterm
+        text = re.sub(email_pattern,'',text)
+
+        # Remove phone patterm
+        text = re.sub(phone_pattern,'',text)
+        
         # Remove HTML tags
         text = re.sub(r'<[^>]*>', '', text)
-        # Remove URLs
-        text = re.sub(r'http[s]?://\S+', '', text)
+        # Remove URLs   
+        text = re.sub(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+|www\.\S+', '', text)
+
         # Remove special characters and multiple spaces
         text = re.sub(r'[^\w\s]', '', text)
+         
         text = re.sub(r'\s+', ' ', text).strip()
+
         return text
 
     def remove_punctuations(self, text: str) -> str:
@@ -37,7 +54,3 @@ class TextCleaner:
         filtered_words = [word for word in text if word not in self.stop_words]
         return ' '.join(filtered_words)
 
-# Usage example
-cleaner = TextCleaner()
-clean_text = cleaner("• Your example resume text here with URLs, emojis, •••••••• and other characters.😂😂😂😂😂😂😂😂😂")
-print(clean_text)
