@@ -4,7 +4,7 @@ import string
 import nltk
 from nltk.corpus import stopwords
 
-# Download necessary NLTK data
+# Download necessary NLTK data.
 nltk.download('stopwords')
 
 class TextCleaner:
