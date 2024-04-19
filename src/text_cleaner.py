@@ -18,6 +18,7 @@ class TextCleaner:
         # text = self.remove_stopwords(text)
         return text
 
+    #Defining function to remove emoji and unrecognizable characters
     def remove_emojis_and_unrecognizable_characters(self, text: str) -> str:
 
         date_pattern = r'\b(?:\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|\d{1,2}/\d{4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})\b'
